@@ -56,8 +56,10 @@ The TidyTuesday dataset used for this project can be accessed using the followin
   
   
 ## Repository Structure
-- **`data/`**: Contains raw data file for analysis.
-- **`code/`**: Contains `.Rmd` and `.html` files of code documentation with generated visuals.
+- **`data/`**: Contains supplementary world event data. TidyTuesday dataset too large for GitHub.
+- **`code/`**: Contains `.qmd` files of code documentation with generated visuals. Files include:
+  - 
+  -  
 - **`report/`**: Contains `.Rmd` and `.html` files of final report, including relevant code and generated visuals.
 - **`README.md`**
   
