@@ -61,6 +61,7 @@ The TidyTuesday dataset used for this project can be accessed using the followin
   - `about.qmd`: introduces team members
   - `contract.qmd`: project management plan
   - `proposal.qmd`: project proposal
+  - `EDA.qmd`: exploratory data analysis
   - `Q1_code.qmd`: code and visualizations associated with basketball analysis
   - `Q2_code.qmd`: code and visualizations associated with performance analysis by country
   - `dashboard.qmd`: Quarto dashboard for neat viewing of visuals
@@ -76,6 +77,6 @@ The TidyTuesday dataset used for this project can be accessed using the followin
 #### To Render Quarto-Generated Website
 1. Make sure you have Quarto installed on your system.
 2. Clone the repository.
-3. Open any `.qmd` file (excluding `Q1_code.qmd` and `Q2_code.qmd`) in RStudio.
+3. Open any `.qmd` file (excluding `Q1_code.qmd`, `Q2_code.qmd`, and `EDA.qmd`) in RStudio.
 4. Download `world_important_dates.csv` from `data/` folder and TidyTuesday dataset, place in correct directory.
 5. Press `Render`. You should be automatically redirected to a website where you can view the dashboard, report, and more.
