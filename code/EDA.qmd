@@ -1,0 +1,174 @@
+```{r}
+#| warning: false
+#| message: false
+# Load in packages
+if (!require("pacman")) 
+  install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               here,
+               DescTools)
+```
+
+```{r}
+# Load and wrangle data
+olympics <- read_csv(here("data", "athlete_events.csv"))
+
+# create decade column, years are rounded down for decade column (EX: Year=1896,Decade=1890)
+olympics$Decade <- floor(olympics$Year / 10) * 10
+
+# create height in inches column
+olympics$Height_Inches <- round(olympics$Height / 2.54)
+
+# create new df containing only basketball data
+basketball <- subset(olympics, Sport == 'Basketball')
+
+# create height in feet column
+basketball$Height_Ft <- floor(basketball$Height_Inches / 12)
+
+# create remainder of inches column
+basketball$Height_Inches_Rem <- round(basketball$Height_Inches %% 12)
+
+basketball <- subset(basketball, !is.na(Height)) # remove NA height rows
+
+# filter even further for only mens basketball data
+mens_basketball <- subset(basketball, Event %in% c("Basketball Men's Basketball"))
+
+# convert decade column to factor for plotting
+mens_basketball$Decade = as.factor(mens_basketball$Decade)
+
+# find average for 1930 and 2010
+basketball_summary_stats_by_decade = mens_basketball |>
+  group_by(Decade) |>
+  summarize(mean = round(Mean(Height_Inches, na.rm = TRUE),1)) |>
+  ungroup()
+```
+
+```{r}
+ggplot(basketball_summary_stats_by_decade, aes(x = Decade, y = mean, fill = mean)) + 
+  geom_bar(stat = "identity") + 
+  geom_text(aes(label = mean), vjust = -0.5) + 
+  labs(
+    title = "Average Olympic Men's Basketball Player Height by Decade",
+    y = "Height (in)"
+  ) +
+  coord_flip() + 
+  coord_cartesian(clip = "off") + 
+  scale_fill_gradient(low = "deepskyblue", high = "navy") + 
+  theme_minimal() + 
+  theme(panel.grid = element_blank(), legend.position = "none")
+```
+
+```{r}
+# Height box plot per decade
+
+ggplot(data = mens_basketball, aes(x = Decade, y = Height_Inches)) +
+  geom_boxplot(fill = "deepskyblue", color = "black") +
+  labs(
+    title = "Olympic Men's Basketball Height Distribution by Deacde",
+    x = "Decade",
+    y = "Height (in)"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    # plot.title = element_text(hjust = 0.5)
+  )
+```
+
+```{r}
+print(paste("Average men's height:", round(mean(mens_basketball$Height_Inches, na.rm = TRUE)), "inches"))
+print(paste("Average men's height:", round(mean(mens_basketball$Height, na.rm = TRUE)), "centimeters"))
+print(paste("Average men's weight:", round(mean(mens_basketball$Weight, na.rm = TRUE)), "kg"))
+print(paste("Average men's weight:", round(mean(mens_basketball$Weight * 2.204623, na.rm = TRUE)), "pounds"))
+```
+
+```{r}
+# Height in inches box plot
+
+ggplot(data = mens_basketball, aes(x = Height_Inches)) +
+  geom_boxplot(fill = "deepskyblue") + 
+  labs(
+    title = "Olympic Men's Basketball Player Heights",
+    subtitle = "Athens 1896 to Rio 2016",
+    x = "Height (in)",
+    y = ""
+  ) +
+   scale_x_continuous(
+    breaks = seq(60, 90, by = 5),
+    limits = c(60,90)
+  ) + 
+  theme_minimal() + 
+  theme(
+    panel.grid = element_blank(),
+    axis.title.x = element_text(size = 12),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_blank()
+  )
+```
+
+```{r}
+# Histogram of heights
+
+ggplot(data = mens_basketball, aes(x = Height_Inches)) +
+  geom_histogram(
+    binwidth = 1,
+    fill = "deepskyblue",
+    color = "black"
+  ) +
+  labs(
+    title = "Distribution of Olympics Men's Basketball Player Heights",
+    x = "Height (in)",
+    y = "Frequency"
+  ) + 
+  scale_x_continuous(breaks = seq(60, 90, by = 5)) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank()
+  )
+```
+
+```{r}
+# Avg heights by game
+
+avg_heights <- mens_basketball %>%
+  group_by(Year) %>%
+  summarize(mean_height = mean(Height_Inches, na.rm = TRUE))
+
+# Plot the line chart
+ggplot(data = avg_heights, aes(x = Year, y = mean_height)) +
+  geom_line(color = "deepskyblue", size = 1) +
+  geom_point(color = "goldenrod3") +
+  labs(
+    title = "Average Olympics Men's Basketball Player Height by Year",
+    x = "Year",
+    y = "Average Height (in)"
+  ) +
+  scale_x_continuous(breaks = seq(1936, 2016, by = 10), limits = c(1936, 2016)) + 
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank()
+  )
+```
+
+```{r, fig.width=10, fig.height=6}
+avg_heights_team <- mens_basketball %>%
+  group_by(Team) %>%
+  summarize(mean_height = mean(Height_Inches, na.rm = TRUE)) 
+
+# Plot a horizontal bar chart
+ggplot(data = avg_heights_team, aes(x = reorder(Team, mean_height), y = mean_height)) +
+  geom_col(fill = "deepskyblue") +
+  labs(
+    title = "Average Player Height by Team",
+    x = "Team",
+    y = "Average Height (in)"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.text.y = element_text(size = 6)
+  ) +
+  coord_flip()
+```
