@@ -58,18 +58,24 @@ The TidyTuesday dataset used for this project can be accessed using the followin
 ## Repository Structure
 - **`data/`**: Contains supplementary world event data. TidyTuesday dataset too large for GitHub.
 - **`code/`**: Contains `.qmd` files of code documentation with generated visuals. Files include:
-  - 
-  -  
-- **`report/`**: Contains `.Rmd` and `.html` files of final report, including relevant code and generated visuals.
+  - `about.qmd`: introduces team members
+  - `contract.qmd`: project management plan
+  - `proposal.qmd`: project proposal
+  - `Q1_code.qmd`: code and visualizations associated with basketball analysis
+  - `Q2_code.qmd`: code and visualizations associated with performance analysis by country
+  - `dashboard.qmd`: Quarto dashboard for neat viewing of visuals
+  - `index.qmd`: report for website rendering
+- **`deliverables/`**: Contains `.pdf` files of final report and final presentation.
 - **`README.md`**
   
   
 ## How To Run
-#### For Simple Viewing
-1. Download and open desired `.html` files.
+#### To View Report or Presentation
+1. Download and open desired `.pdf` files.
 
-#### To Run Yourself
-1. Clone the repository.
-2. Open `info523_project_code.Rmd` in RStudio.
-3. Download `Big_Black_Money_Dataset.csv` from `data/` folder and place in correct directory.
-4. Run the code as usual.
+#### To Render Quarto-Generated Website
+1. Make sure you have Quarto installed on your system.
+2. Clone the repository.
+3. Open any `.qmd` file (excluding `Q1_code.qmd` and `Q2_code.qmd`) in RStudio.
+4. Download `world_important_dates.csv` from `data/` folder and TidyTuesday dataset, place in correct directory.
+5. Press `Render`. You should be automatically redirected to a website where you can view the dashboard, report, and more.
