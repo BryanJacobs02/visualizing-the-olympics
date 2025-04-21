@@ -1,5 +1,5 @@
 # Visualizing the Olympics
-*Final project for [INFO526: Data Analysis and Visualization](https://infosci.arizona.edu/course/info-526-data-analysis-and-visualization) — University of Arizona*
+*Final project for [INFO 526: Data Analysis and Visualization](https://infosci.arizona.edu/course/info-526-data-analysis-and-visualization) — University of Arizona*
   
   
 ## Project Intro/Objective
