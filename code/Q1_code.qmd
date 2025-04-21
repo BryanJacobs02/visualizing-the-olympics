@@ -1,0 +1,191 @@
+# Visualization 1
+
+```{r}
+#| label: Visualization 1
+#| warning: False
+#| message: False
+
+# Visualization 1
+
+# Load in packages
+if (!require("pacman")) 
+  install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               ggridges,
+               here,
+               RColorBrewer,
+               DescTools,
+               grid,
+               caTools,
+               pROC)
+
+
+#### Load in Data
+olympics <- read_csv(here("data", "athlete_events.csv"))
+
+#### Data Prep
+
+# create decade column, years are rounded down for decade column (EX: Year=1896,Decade=1890)
+olympics$Decade <- floor(olympics$Year / 10) * 10
+
+# create height in inches column
+olympics$Height_Inches <- round(olympics$Height / 2.54)
+
+# create new df containing only basketball data
+basketball <- subset(olympics, Sport == 'Basketball')
+
+# create height in feet column
+basketball$Height_Ft <- floor(basketball$Height_Inches / 12)
+
+# create remainder of inches column
+basketball$Height_Inches_Rem <- round(basketball$Height_Inches %% 12)
+
+# filter even further for only mens basketball data
+mens_basketball <- subset(basketball, Event %in% c("Basketball Men's Basketball"))
+
+# convert decade column to factor for plotting
+mens_basketball$Decade = as.factor(mens_basketball$Decade)
+
+# find mode for 1930 and 2010
+basketball_summary_stats_by_decade = mens_basketball |>
+  group_by(Decade) |>
+  summarize(mode = Mode(Height_Inches, na.rm = TRUE)) |>
+  ungroup()
+
+mens_basketball|>
+  ggplot(aes(x = Height_Inches, y = Decade, fill = Decade)) +
+  geom_density_ridges() +
+  scale_fill_brewer(palette = "Oranges") +
+  scale_x_continuous(breaks = seq(60, 90, by = 5)) +
+  labs(x = "Height (inches)",
+       y = NULL,
+       title = "The Increase of Olympic Men's Basketball Player Heights",
+       subtitle = "from the 1930's to the 2010's") +
+  geom_segment(aes(x = 80.65, y = 10.45, xend = 88, yend = 4.5), linewidth = 0.3) +
+  geom_segment(aes(x = 72.2, y = 2.7, xend = 88, yend = 4.5), linewidth = 0.3) +
+  geom_text(aes(x = 81.3, y = 10.8, label = "6'8\""), size = 3) +
+  geom_text(aes(x = 72.7, y = 3.05, label = "6'0\""), size = 3) +
+  annotate("point", x = 80.65, y = 10.45, fill = "red", size = 3, shape = 21, stroke = 0.5) +
+  annotate("point", x = 72.2, y = 2.7, fill = "red", size = 3, shape = 21, stroke = 0.5) +
+  geom_label(aes(x = 88, y = 4.5, label = "The most common\nplayer height has\nincreased by 8 inches\nsince the 1930's"),
+             color = "black", fill = "white", size = 3, fontface = "bold") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "white"),
+        plot.title = element_text(face = "bold"),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank()) +
+  coord_cartesian(clip = "off")
+```
+
+## Viz 1 References
+
+<https://r-coder.com/subset-r/>
+
+<https://stackoverflow.com/questions/35352914/floor-a-year-to-the-decade-in-r>
+
+# Visualization 2
+
+Logistic Regression Model
+
+```{r}
+#| label: Logistic Regression Viz 2
+#| warning: False
+
+# Add binary medal column: 1 = medal, 2 = no medal
+mens_basketball = mens_basketball |>
+  mutate(medal_bi = case_when(
+    Medal == "Bronze" ~ 1,
+    Medal == "Silver" ~ 1,
+    Medal == "Gold" ~ 1,
+    is.na(Medal) ~ 0
+  ))
+
+# Create 2 column df of height and medal_bi and remove NA's
+logit_df = as.data.frame(cbind(mens_basketball$Height_Inches,
+                               mens_basketball$medal_bi))
+colnames(logit_df) = c("height",
+                       "medal")
+logit_df = logit_df |>
+  drop_na(height)
+
+# Split into training and testing
+set.seed(123)
+split = sample.split(logit_df$medal, SplitRatio = 0.7)
+train_data = subset(logit_df, split == TRUE)
+test_data = subset(logit_df, split == FALSE)
+
+# Fit the model
+medal_logit = glm(medal ~ height, data = train_data, family = binomial)
+summary(medal_logit)
+
+# Test the model
+test_data$pred_prob = predict(medal_logit, newdata = test_data, type = "response")
+
+roc_curve = roc(test_data$medal, test_data$pred_prob)
+plot(roc_curve)
+auc(roc_curve)
+
+# Plot the probabilities
+height_seq = as.data.frame(seq(min(logit_df$height) - 20, max(logit_df$height) + 20, length.out = 100))
+colnames(height_seq) = "height"
+pred_prob2 = predict(medal_logit, newdata = height_seq, type = "response")
+
+plot_data = as.data.frame(cbind(height_seq,
+                                pred_prob2))
+
+plot_data |>
+  ggplot(aes(x = height, y = pred_prob2)) +
+  geom_line(size = 1) +
+  geom_jitter(data = test_data, aes(x = height, y = pred_prob, color = as.factor(medal)),
+              width = 0, height = 0.1, alpha = 0.6) + 
+  scale_color_manual(
+    values = c("1" = "darkorange", "0" = "steelblue"),
+    labels = c("Non-Medal Winner", "Medal Winner"),
+    name = "Medal Status"
+  ) +
+  labs(
+    title = "Probability of Winning an Olympic Medal by Height",
+    subtitle = "Logistic Regression Model",
+    x = "Height (in)",
+    y = "Predicted Probability"
+  ) + 
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    breaks = seq(0, 1, 0.20)
+  ) +
+  theme_minimal() + 
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.title = element_text(size = 12),
+    legend.position = "right",
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 11, face = "bold"),
+    legend.background = element_rect(color = "black"),
+    aspect.ratio = 1/2
+  )
+```
+
+p-value = 6.05e-10 -\> very statistically significant
+
+AUC = 0.5973 -\> just slightly better than random guessing
+
+\^Together these values mean that height and medal are strongly correlated, but the model is not good at predicting based on height alone.
+
+Height Coef = 0.08477
+
+Odds Ratio = e\^0.08477 = 1.0885
+
+For every one inch increase in height, the odds of winning a medal increase by 8.85%
+
+Conclusion: Height almost definitely plays a role in earning a medal in Olympic basketball, but there are many other important factors needed to accurately predict if a player will win a medal such as skills, team context, or other physical attributes.
+
+## Viz 2 References
+
+<https://www.rpubs.com/fangya/logr>
+
+<https://quarto.org/docs/dashboards/> (dashboard ref)
+
+<https://plotly.com/r/>

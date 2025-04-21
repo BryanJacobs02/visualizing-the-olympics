@@ -1,0 +1,132 @@
+**Team Project Contract**\
+**Project Title:** **MintMinds for Data Viz\
+Team Members:**
+
+1.  \[Raja Sekhar Malireddy, malireddyraja\@arizona.edu, 520 528 6374\]
+
+2.  \[Vaishnav Mandlik, vaishnavm\@arizona.edu, +1 (628) 946-9595\]
+
+3.  \[Bryan Jacobs, bryanjacobs\@arizona.edu, (929) 331-2408\]
+
+4.  \[Sri Ram Theerdh Manikyala, manikyala\@arizona.edu, 520 283 3605\]
+
+5.  \[Rafi Leviton, rjleviton\@arizona.edu, 612 840 1262\]
+
+6.  \[Arjun Kumar, arjunkumar\@arizona.edu, 520 232 4452\]
+
+7.  \[Deepak Lingala, deepaklingala\@arizona.edu, 520 481 7386\]
+
+**Project Overview**
+
+-   **Project Description:**
+
+    We will use Olympic data dating back to the very first Olympic Games in order to answer intriguing questions and tell interesting stories about the performance of different countries and athletes over the decades. *update when plots and specific questions are determined*
+
+-   **Expected Deliverables:** *update when plots are specific questions are determined*
+
+**Team Goals**
+
+-   **Project Goals:**
+
+    -   Effectively communicate project questions and findings.
+
+    -   Create 4 presentation ready plots that tell an interesting story.
+
+    -   Create a professional presentation, dashboard, and report that will be useful on a resume beyond the scope of this course.
+
+-   **Learning Objectives:**
+
+    -   Improve comprehension of RStudio, GitHub, and related RStudio packages (ggplot, tidyverse, etc.).
+
+    -   Gain new, or hone existing mathematical and statistical analysis skills.
+
+    -   Get comfortable working collaboratively in a professional setting
+
+    -   Improve data science related skills (data cleaning, data preprocessing, data visualization)
+
+**Team Roles and Responsibilities**
+
+-   **Roles :**
+    -   **Project Manager:** Raja Sekhar Malireddy – Ensures timelines are met, organizes meetings, and manages communications.
+    -   **Data Analyst:** Rafi Leviton, Vaishnav Mandlik – Responsible for data cleaning, analysis, and exploratory visualizations.
+    -   **Visualization Specialist:** Bryan Jacobs, Arjun Kumar – Designs the final visualizations and makes aesthetic choices.
+    -   **Documentation Lead:** Sri Ram Theerdh Manikyala, Deepak Lingala – Keeps detailed notes, ensures all project decisions are documented, and handles the final report.
+-   **Responsibilities:**
+-   **General Responsibilities:** Each team member is responsible for:
+    -   Participating actively in all meetings.
+
+    -   Completing their assigned tasks on time.
+
+    -   Considering thoughts/opinions of all group members.
+
+    -   Communicating openly and promptly if issues arise.
+
+**Communication Plan**
+
+-   **Meeting Schedule:** Weekly on Friday at Noon via Zoom.
+
+-   **Primary Communication Platform:** Slack
+
+-   **Decision-Making Process:** Decisions will be made by consensus; if a consensus cannot be reached, a vote will be taken.
+
+**Work Plan and Timeline**
+
+-   **Milestones:**
+    -   **Data Collection and Cleaning:** Completed by Oct 16.
+    -   **Exploratory Data Analysis:** Completed by Nov 1.
+    -   **Design of Visualizations:** Completed by Nov 13.
+    -   **Final Presentation and Report:** Completed by Dec 13.
+-   **Task Assignments:**
+
+```{r}
+#| title: Task Assignment Table
+#| warnings: False
+
+if (!require("pacman")) 
+  install.packages("pacman")
+
+pacman::p_load(tidyverse)
+
+tasks = tribble(
+  ~task,                    ~team_member,                   ~due_date,
+  "Q1 Prep Code",           "Rafi/",                        "Nov 20",
+  "Q1 Visualizations",      "Bryan/Rafi",                   "Dec 1",
+  "Q2 Prep Code",           "Vaishnav/",                    "Nov 20",
+  "Q2 Visualizations",      "Raja/Vaishnav",                "Dec 1",
+  "Presentation",           "Bryan/",                       "Dec 9",
+  "Dashboard",              "Bryan/Raja",                   "Dec 9",
+  "Report",                 "Rafi/",                        "Dec 9"
+)
+```
+
+**Accountability and Expectations**
+
+-   **Attendance Policy:** All team members are expected to attend scheduled meetings unless previously discussed.
+
+-   **Quality of Work:** All deliverables should be completed to a professional standard.
+
+-   **Deadlines:** All members are responsible for meeting deadlines. If someone cannot meet a deadline, they must notify the team in advance.
+
+**Conflict Resolution Plan**
+
+-   **Conflict Management:** If a conflict arises, team members will:
+    -   Discuss the issue openly during a team meeting.
+    -   Attempt to resolve the issue through compromise.
+    -   If the conflict persists, consult the project supervisor for guidance.
+
+**Signatures**\
+By signing below, each team member agrees to the terms of this contract and commits to working together effectively and respectfully.
+
+-   **\[Name\]**: Bryan Jacobs Date: 2024-09-30
+
+-   **\[Name\]**: Raja Sekhar Malireddy Date: 2024-09-30
+
+-   **\[Name\]**: Arjun Kumar Date: 2024-09-30
+
+-   **\[Name\]**: Sri Ram Theerdh Manikyala Date: 2024-09-30
+
+-   **\[Name\]**: Vaishnav Mandlik Date: 2024-09-30
+
+-   **\[Name\]**: Rafi Leviton Date: 2024-09-30
+
+-   **\[Name\]**: Deepak Lingala Date: 2024-09-30

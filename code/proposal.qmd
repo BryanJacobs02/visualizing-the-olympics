@@ -1,0 +1,106 @@
+---
+title: "INFO 526 Final Project"
+subtitle: "Proposal"
+author: 
+  - name: "Mint Minds For DataViz"
+    affiliations:
+      - name: "School of Information, University of Arizona"
+description: "The project proposal identifies and explores three potential datasets to be used for the project."
+format:
+  html:
+    code-tools: true
+    code-overflow: wrap
+    code-line-numbers: true
+    embed-resources: true
+editor: visual
+code-annotations: hover
+execute:
+  warning: false
+---
+
+```{r}
+#| label: load-pkgs
+#| message: false
+
+if (!require("pacman")) 
+  install.packages("pacman")
+
+pacman::p_load(tidyverse,
+              ggplot2)
+```
+
+## Datasets
+
+```{r}
+#| label: load-dataset
+#| message: false
+
+olympics = read.csv("data/athlete_events.csv")
+Amazon = read.csv("data/Amazon Sales.csv")
+stock_prices = read.csv("data/big_tech_stock_prices.csv")
+```
+
+## **Introduction and data**
+
+### Olympic Data Set (athlete_events.csv) \<-- SELECTED DATA SET
+
+Our data set comes from 2024-08-06 tidytuesday, and contains data from every Olympic Games ranging from Athens 1896 to Rio 2016. The data set is 271,116 rows by 15 columns and contains data for every Olympic medal winner such as their name, sex, country, height, weight, and games they won the medal at.
+
+It is important to note that winter and summer games were held in the same year up until 1992. From 1992 onward they were staggered by two years.
+
+### Big Tech Stock Prices (big_tech_stock_prices.csv)
+
+Bit tech stock price dataset from 2023-02-07 tidytuesday. The data has 45089 rows and 8 columns. Rows has the stock stock symbol, date, open, high, low, close, adj close, volume from 2010-01-04 to 2022-12-29 of the following companies: Adobe Inc., Amazon.com, Inc., Salesforce, Inc., Cisco Systems, Inc., Alphabet Inc., IBM, Intel Corporation, Meta Platforms, Inc., Microsoft Corporation, Netflix, Inc., NVIDIA Corporation, Oracle Corporation, Tesla, Inc.
+
+### Amazon Sales Report (Amazon Sales.csv)
+
+We have taken this dataset from kaggle/e-commerce-sales-data, by Anil, and data belongs to Amazon.com. This dataset has 128975 rows and 24 column of data. This dataset provides detailed insights into Amazon sales data, including SKU Code, Design Number, Stock, Category, Size and Color, to help visualization of profitability. The dataset tracks transactions made by customers in an online retail store to analyze purchasing behavior and identify sales trends.
+
+## Questions
+
+### Olympic Data Set (athlete_events.csv)
+
+1.  Is there an ideal height or weight for each event? If so, what are they and have they changed over time?
+2.  How has the performance of different countries changed over time? Are there any major events that could have led to a change in performance? (medal count over time / gold medals over time)
+
+### Big Tech Stock Prices (big_tech_stock_prices.csv)
+
+1.  Is there any relationship between daily volatility open price and close price with the volume of stocks?
+
+-   This question is important because it can help trader to understand the relationship between the volume of stocks and the daily volatility of the stock price.
+
+2.  do closing price of stock of Big Tech companies correlate with each other over time?
+
+-   This question is important because it provides traders insights of closing prices of Big Tech companies related to volume of stock, it will help them to make investment decisions.
+
+### Amazon Sales Report (Amazon Sales.csv)
+
+1.  What is the distribution of order statuses, and which status is the most common?
+2.  What are the top three product categories with the highest total sales amount?
+
+## Analysis plan
+
+-   A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).
+
+### Olympic Data Set (athlete_events.csv)
+
+1.  Variables: Sex, Height, Weight, Medal, Sport, Games, Year. We will investigate the distributions of height and weight of athletes across different sports and sexes. We can also investigate if so-called "ideal" heights and weights have changed over time for each event. This question has the potential to raise ethical concerns in that anyone is able to succeed in any sport no matter their height/weight. We just want to investigate whether or not there is a historical trend of success across different events in athletes with certain heights/weights.
+2.  Olympics data variables: Year, Games, Country, Medal, Event. World Events data variables: Name, Year, Month, Country, Type, Place, Impact, Effected Population, Person/Group Responsible, Outcome. We will investigate the change in medal count per country over time; overall and by event. We can use the world events data in order to find a potential cause for observed medal count changes.
+
+### Big Tech Stock Prices (big_tech_stock_prices.csv)
+
+1 . Variables: Date, Open, High, Low, Close, Adj Close, Volume. We will create new variables for daily volatility and investigate the relationship between daily volatility, open price, close price, and volume of stocks. 2. Variables: Date, Close. We’ll examine how the closing price of different Big Tech companies moves together by calculating correlations between them.
+
+### Amazon Sales Report (Amazon Sales.csv)
+
+1.  Amazon Sales Variables: "Status", "Order ID". New variable created for counting unique order status is status_frequency. At first part of using data we will check if all the values in Status is clean without any duplicates or spelling errors (suppose "Shipped" or "shipped"). Next approach will be calculating the count of each Status for better understanding of their distribution. For visualization part barplot is created for visualizing the different order status. This question can help dedicated team of company to access the efficiency of the order fulfillment.
+
+2.  Variables used: "Category", "Amount". Creates a new variable that sums up the Sale Amount for each Product Category "Total_sales_by_product". First step will be to check if Category and amount variables don't have missing values, especially in Amount. Then we will group data by product category(Category) and sales_amount(Amount), which will be used to rank category by total_sales_value, at this point we will have Top 3 category which has highest sales amount. At the end for visualization we will create a barplot displaying the total sales for each category, with emphasis on the top three categories. This question can help company to focus on top product category of platform and less on least popular category for revenue management.
+
+## **Glimpse of data**
+
+```{r}
+glimpse(olympics)
+glimpse(stock_prices)
+glimpse(Amazon)
+```

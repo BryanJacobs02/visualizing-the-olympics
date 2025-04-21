@@ -1,0 +1,279 @@
+---
+title: Visualizing the Olympics
+author: by MintMindsForDataViz
+format:
+  dashboard: 
+    orientation: columns
+    theme: yeti
+---
+
+```{r}
+#| message: False
+
+# Load in packages
+if (!require("pacman")) 
+  install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               ggridges,
+               here,
+               RColorBrewer,
+               DescTools,
+               grid,
+               caTools,
+               pROC,
+               plotly,
+               ggthemes,
+               patchwork,
+               gganimate,
+               gifski,
+               lubridate)
+```
+
+```{r}
+#| warning: False
+#| message: False
+
+# Q1 Viz1
+
+#### Load in Data
+olympics <- read_csv(here("data", "athlete_events.csv"))
+
+#### Data Prep
+
+# create decade column, years are rounded down for decade column (EX: Year=1896,Decade=1890)
+olympics$Decade <- floor(olympics$Year / 10) * 10
+
+# create height in inches column
+olympics$Height_Inches <- round(olympics$Height / 2.54)
+
+# create new df containing only basketball data
+basketball <- subset(olympics, Sport == 'Basketball')
+
+# create height in feet column
+basketball$Height_Ft <- floor(basketball$Height_Inches / 12)
+
+# create remainder of inches column
+basketball$Height_Inches_Rem <- round(basketball$Height_Inches %% 12)
+
+# filter even further for only mens basketball data
+mens_basketball <- subset(basketball, Event %in% c("Basketball Men's Basketball"))
+
+# convert decade column to factor for plotting
+mens_basketball$Decade = as.factor(mens_basketball$Decade)
+
+# find mode for 1930 and 2010
+basketball_summary_stats_by_group = mens_basketball |>
+  group_by(Decade) |>
+  summarize(mode = Mode(Height_Inches, na.rm = TRUE)) |>
+  ungroup()
+
+# density plot
+height_dens = mens_basketball|>
+  ggplot(aes(x = Height_Inches, y = Decade, fill = Decade)) +
+  geom_density_ridges() +
+  scale_fill_brewer(palette = "Oranges") +
+  scale_x_continuous(breaks = seq(60, 90, by = 5)) +
+  labs(x = "Height (inches)",
+       y = NULL,
+       title = "The Increase of Olympic Men's Basketball Player Heights",
+       subtitle = "from the 1930's to the 2010's") +
+  geom_segment(aes(x = 80.65, y = 10.45, xend = 88, yend = 4.5), linewidth = 0.3) +
+  geom_segment(aes(x = 72.2, y = 2.7, xend = 88, yend = 4.5), linewidth = 0.3) +
+  geom_text(aes(x = 81.3, y = 10.8, label = "6'8\""), size = 3) +
+  geom_text(aes(x = 72.7, y = 3.05, label = "6'0\""), size = 3) +
+  annotate("point", x = 80.65, y = 10.45, fill = "red", size = 3, shape = 21, stroke = 0.5) +
+  annotate("point", x = 72.2, y = 2.7, fill = "red", size = 3, shape = 21, stroke = 0.5) +
+  geom_label(aes(x = 88, y = 4.5, label = "The most common\nplayer height has\nincreased by 8 inches\nsince the 1930's"),
+             color = "black", fill = "white", size = 3, fontface = "bold") +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "white"),
+        plot.title = element_text(face = "bold"),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank()) +
+  coord_cartesian(clip = "off")
+```
+
+```{r}
+#| warning: False
+#| message: False
+
+# Q1 Viz2
+
+# Add binary medal column: 1 = medal, 2 = no medal
+mens_basketball = mens_basketball |>
+  mutate(medal_bi = case_when(
+    Medal == "Bronze" ~ 1,
+    Medal == "Silver" ~ 1,
+    Medal == "Gold" ~ 1,
+    is.na(Medal) ~ 0
+  ))
+
+# Create 2 column df of height and medal_bi and remove NA's
+logit_df = as.data.frame(cbind(mens_basketball$Height_Inches,
+                               mens_basketball$medal_bi))
+colnames(logit_df) = c("height",
+                       "medal")
+logit_df = logit_df |>
+  drop_na(height)
+
+# Split into training and testing
+set.seed(123)
+split = sample.split(logit_df$medal, SplitRatio = 0.7)
+train_data = subset(logit_df, split == TRUE)
+test_data = subset(logit_df, split == FALSE)
+
+# Fit the model
+medal_logit = glm(medal ~ height, data = train_data, family = binomial)
+medal_logit_summary = summary(medal_logit)
+
+# Test the model
+test_data$pred_prob = predict(medal_logit, newdata = test_data, type = "response")
+
+roc_curve = roc(test_data$medal, test_data$pred_prob)
+#roc_curve_plot = plot(roc_curve)
+roc_curve_auc = auc(roc_curve)
+
+# Plot the probabilities
+height_seq = as.data.frame(seq(min(logit_df$height) - 20, max(logit_df$height) + 20, length.out = 100))
+colnames(height_seq) = "height"
+predicted_probability = predict(medal_logit, newdata = height_seq, type = "response")
+
+plot_data = as.data.frame(cbind(height_seq,
+                                predicted_probability))
+
+height_logit_plot = plot_data |>
+  ggplot(aes(x = height, y = predicted_probability)) +
+  geom_line(size = 1, color = "black") +
+  geom_point(aes(text = paste("Height:", round(height, 1), "<br>Predicted Probability:", scales::percent(predicted_probability))),
+             size = 0.3, color = "black") +
+  geom_jitter(data = test_data, aes(x = height, y = pred_prob, color = as.factor(medal), text = paste("Height:", round(height, 1), "<br>", ifelse(medal == 1, "Medal", "No Medal"))),
+              width = 0, height = 0.1, alpha = 0.6) + 
+  scale_color_manual(
+    values = c("1" = "darkorange", "0" = "steelblue"),
+    labels = c("Non-Medal Winner", "Medal Winner"),
+    name = "Medal Status"
+  ) +
+  labs(
+    title = "Probability of Winning an Olympic Medal by Height",
+    subtitle = "Logistic Regression Model",
+    x = "Height (in)",
+    y = "Predicted Probability"
+  ) + 
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    breaks = seq(0, 1, 0.20)
+  ) +
+  theme_minimal() + 
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.title = element_text(size = 12),
+    legend.position = "right",
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 11, face = "bold"),
+    legend.background = element_rect(color = "black"),
+    aspect.ratio = 1/2
+  )
+
+height_logit_plot_hover = ggplotly(height_logit_plot, tooltip = "text")
+```
+
+```{r}
+#| warning: False
+#| message: False
+
+medal_data <- olympics %>%
+  filter(!is.na(Medal)) %>% 
+  group_by(Year, NOC, Medal) %>%  
+  summarize(Count = n(), .groups = "drop") %>%
+  pivot_wider(names_from = Medal, values_from = Count, values_fill = 0) %>%
+  mutate(Total = Gold + Silver + Bronze)
+
+# getting top 10 countries by medal
+top_countries <- medal_data %>%
+  group_by(NOC) %>%
+  summarize(Total = sum(Total), .groups = "drop") %>%
+  arrange(desc(Total)) %>%
+  slice(1:10) %>%
+  pull(NOC)
+
+top_country_data <- medal_data %>%
+  filter(NOC %in% top_countries)
+
+# adding major events while olympics
+world_events <- data.frame(
+  Year = c(1916, 1936, 1940, 1944, 1968, 1980, 1984, 1996),
+  Event = c(
+    "1916 Games Canceled (WWI)",          
+    "Berlin Games Under Nazi (1936)",               
+    "1940 Games Canceled (WWII)",        
+    "1944 Games Canceled (WWII)",       
+    "Black Power Salute (1968)",         
+    "Moscow Boycott (U.S led) (1980)", 
+    "Los Angeles Boycott (Soviet led) (1984)",
+    "Centennial Bombing (1996)"   
+  )
+)
+
+p1 <- ggplot(top_country_data, aes(x = Year, y = Total, color = NOC, group = NOC)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  geom_vline(data = world_events, aes(xintercept = Year), linetype = "dashed", color = "red") +
+  geom_text(data = world_events, aes(x = Year, y = max(top_country_data$Total), label = Event),
+            angle = 90, vjust = -0.3, hjust = 1, color = "red", size = 2, inherit.aes = FALSE) +
+  scale_color_brewer(palette = "Set3") +
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Medal Trends Over Time (Top 10 Countries)",
+    subtitle = "With annotations for major historical events",
+    x = "Year",
+    y = "Total Medals",
+    color = "Country"
+  ) +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+```
+
+```{r}
+p2 <- ggplot(top_country_data, aes(x = Year, y = Gold, fill = NOC)) +
+  geom_area(position = "stack", alpha = 0.8) +
+  scale_fill_viridis_d() +
+   scale_color_brewer(palette = "Set3") +
+  theme_classic(base_size = 15) +
+  labs(
+    title = "Gold Medal Distribution",
+    subtitle = "Area chart showing the dominance of top countries",
+    x = "Year",
+    y = "Gold Medals",
+    fill = "Country"
+  )
+```
+
+## Column
+
+### Row
+
+```{r}
+height_dens
+```
+
+### Row
+
+```{r}
+height_logit_plot_hover
+```
+
+## Column
+
+### Row
+
+```{r}
+p1
+```
+
+### Row
+
+```{r}
+p2
+```

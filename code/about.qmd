@@ -1,0 +1,21 @@
+---
+title: "About"
+format: html
+editor: visual
+---
+
+This project was developed by **MintMindsForDataViz** For [INFO 526 - Data Analysis and Visualization](https://datavizaz.org/) at the University of Arizona, taught by Dr. Greg Chism. The team is comprised of the following team members.
+
+-   Team member 1: Arjun Kumar, 1st year graduate student pursuing Data Science major, College of Information Science, University of Arizona.
+
+-   Team member 2: Deepak Lingala, 1st year graduate student pursuing Data Science major, College of Information Science, University of Arizona.
+
+-   Team member 3: Sri Ram Theerdh Manikyala, 1st year graduate student pursuing Data Science major, College of Information Science, University of Arizona.
+
+-   Team member 4: Vaishnav Mandlik, 1st year graduate student pursuing Information Science major, College of Information Science, University of Arizona.
+
+-   Team member 5: Raja Sekhar Malireddy, 2nd year graduate student pursuing Information Science major, College of Information Science, University of Arizona.
+
+-   Team member 6: Bryan Jacobs , 1st year graduate student pursuing Data Science major, College of Information Science, University of Arizona.
+
+-   Team member 7: Rafi Leviton , 1st year graduate student pursuing Data Science major, College of Information Science, University of Arizona.
