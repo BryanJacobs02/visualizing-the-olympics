@@ -16,13 +16,13 @@ The TidyTuesday dataset used for this project can be accessed using the followin
   
   
 ## Authors
-**Bryan Jacobs**
-**Raja Sekhar Malireddy**
-**Arjun Kumar**
-**Sri Ram Theerdh Manikyala**
-**Vaishnav Mandlik**
-**Rafi Leviton**
-**Deepak Lingala**
+**Bryan Jacobs**  
+**Raja Sekhar Malireddy**  
+**Arjun Kumar**  
+**Sri Ram Theerdh Manikyala**  
+**Vaishnav Mandlik**  
+**Rafi Leviton**  
+**Deepak Lingala**  
   
   
 ## Languages/Packages:
